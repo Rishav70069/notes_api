@@ -1,15 +1,15 @@
-from typing import Annotated
-import jwt
-from jwt import PyJWTError
-from fastapi import Depends, FastAPI
-from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta, timezone
-from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from . config import settings
-from . database import get_db
+from typing import Annotated
 
-from . import models, database
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt import PyJWTError
+from sqlalchemy.orm import Session
+
+from . import models
+from .config import settings
+from .database import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 

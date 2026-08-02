@@ -1,19 +1,22 @@
 from datetime import datetime
-from pydantic import BaseModel,EmailStr,ConfigDict
 from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserCreate(BaseModel):
-    username : str
-    email : EmailStr
-    password : str
+    username: str
+    email: EmailStr
+    password: str
+
 
 class UserResponse(BaseModel):
-    username : str
-    email : EmailStr
-    created_at : datetime
+    username: str
+    email: EmailStr
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class Token(BaseModel):
     access_token: str

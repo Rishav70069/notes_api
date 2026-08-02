@@ -1,12 +1,15 @@
-from datetime import datetime
-from pydantic import BaseModel,EmailStr,ConfigDict
+from pydantic import BaseModel
+
 
 class NoteCreate(BaseModel):
-    title : str
-    content : str
+    title: str
+    content: str
+
 
 class NoteResponse(NoteCreate):
-    username : str
+    id: int
+    title: str
+    content: str
 
     class Config:
         from_attributes = True

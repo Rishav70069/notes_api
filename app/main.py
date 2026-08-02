@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 
 from app.routers import notes
-from .routers import users,auth
 
+from .routers import auth, users
 
 app = FastAPI()
 
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(notes.router)
+
 
 @app.get("/")
 async def root():

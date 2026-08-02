@@ -1,8 +1,9 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.expression import text
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import text
 from sqlalchemy.sql.sqltypes import TIMESTAMP
+
 from .database import Base
 
 
@@ -17,11 +18,11 @@ class User(Base):
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
     updated_at = Column(
-    TIMESTAMP(timezone=True),
-    nullable=False,
-    server_default=func.now(),
-    onupdate=func.now()
-)
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
 
     notes = relationship("Note", back_populates="owner")
 
