@@ -1,6 +1,6 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from .. import models
@@ -11,7 +11,9 @@ from ..schemas import notes_schema
 router = APIRouter(tags=["Notes"], prefix="/notes")
 
 
-@router.post("/")
+@router.post(
+    "/", response_model=notes_schema.NoteResponse, status_code=status.HTTP_201_CREATED
+)
 def create_notes(
     detalis: notes_schema.NoteCreate,
     db: Annotated[Session, Depends(get_db)],
@@ -32,7 +34,7 @@ def get_notes(
     current_user: int = Depends(get_current_user),
     limit: int = 10,
     skip: int = 0,
-    search: Optional[str] = "",
+    search: str | None = "",
 ):
 
     notes = (
@@ -72,3 +74,64 @@ def get_note(
         )
 
     return note
+
+
+@router.patch("/{id}")
+def update_notes(
+    id: int,
+    details: notes_schema.NoteUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[models.User, Depends(get_current_user)],
+):
+
+    note = db.query(models.Note).filter(models.Note.id == id).first()
+
+    if not note:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Note with {id} does not exist",
+        )
+
+    if note.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Not authorized to update note with id {id}",
+        )
+
+    update_data = details.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(note, key, value)
+
+        db.commit()
+        db.refresh(note)
+
+    return note
+
+
+@router.delete("/{id}")
+def delete_notes(
+    id: int,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[models.User, Depends(get_current_user)],
+):
+
+    note_query = db.query(models.Note).filter(models.Note.id == id)
+
+    note = db.query(models.Note).filter(models.Note.id == id).first()
+
+    if not note:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Note with {id} does not exist",
+        )
+
+    if note.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Not authorized to delete note with id {id}",
+        )
+
+    note_query.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
