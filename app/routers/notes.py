@@ -1,6 +1,7 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from .. import models
@@ -35,16 +36,31 @@ def get_notes(
     limit: int = 10,
     skip: int = 0,
     search: str | None = "",
+    sort: Literal["title", "created_at"] = "created_at",
+    order: Literal["asc", "desc"] = "desc",
 ):
 
     notes = (
         db.query(models.Note)
         .filter(models.Note.owner_id == current_user.id)
-        .filter(models.Note.title.contains(search))
-        .limit(limit)
-        .offset(skip)
-        .all()
+        .filter(
+            or_(
+                models.Note.title.contains(search), models.Note.content.contains(search)
+            )
+        )
     )
+
+    if sort == "title":
+        column = models.Note.title
+    else:
+        column = models.Note.created_at
+
+    if order == "asc":
+        notes = notes.order_by(column.asc())
+    else:
+        notes = notes.order_by(column.desc())
+
+    notes = notes.offset(skip).limit(limit).all()
 
     if not notes:
         return []

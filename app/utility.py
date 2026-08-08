@@ -1,4 +1,7 @@
+import resend
 from pwdlib import PasswordHash
+
+from .config import settings
 
 password_hash = PasswordHash.recommended()
 
@@ -21,3 +24,22 @@ def verify_password_or_dummy(plain_password: str, hashed_password: str | None) -
         return False
 
     return password_hash.verify(plain_password, hashed_password)
+
+
+resend.api_key = settings.resend_api_key
+
+
+def send_otp_email(email: str, otp: str):
+    params = {
+        "from": "onboarding@resend.dev",
+        "to": [email],
+        "subject": "Verify your Notes API account",
+        "html": f"""
+            <h2>Email Verification</h2>
+            <p>Your verification code is:</p>
+            <h1>{otp}</h1>
+            <p>This code expires in 10 minutes.</p>
+        """,
+    }
+
+    resend.Emails.send(params)

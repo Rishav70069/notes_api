@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import text
@@ -14,6 +14,11 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+
+    is_verified = Column(Boolean, default=False, nullable=False)
+    otp_hash = Column(String, nullable=True)
+    otp_expires_at = Column(TIMESTAMP(timezone=True), nullable=True)
+
     created_at = Column(
         TIMESTAMP(timezone=True), nullable=False, server_default=text("now()")
     )
@@ -45,5 +50,9 @@ class Note(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+    is_pinned = Column(Boolean, default=False, nullable=False)
+    is_favorite = Column(Boolean, default=False, nullable=False)
+    is_archived = Column(Boolean, default=False, nullable=False)
 
     owner = relationship("User", back_populates="notes")

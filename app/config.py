@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     database_driver: str
+    resend_api_key: str
 
     model_config = SettingsConfigDict(env_file=".env")
 

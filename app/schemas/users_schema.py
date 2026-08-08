@@ -21,3 +21,22 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: Literal["bearer"] = "bearer"
+
+
+class VerifyEmail(BaseModel):
+    email: EmailStr
+    otp: str
+
+
+class ResendOTP(BaseModel):
+    email: EmailStr
+
+
+class ForgotPassword(BaseModel):
+    email: EmailStr
+
+
+class ResetPassword(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str

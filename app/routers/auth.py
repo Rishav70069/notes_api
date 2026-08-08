@@ -38,5 +38,11 @@ def get_user(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials"
         )
 
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before logging in",
+        )
+
     access_token = oauth2.create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token}
