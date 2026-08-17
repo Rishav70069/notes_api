@@ -119,8 +119,8 @@ def update_notes(
     for key, value in update_data.items():
         setattr(note, key, value)
 
-        db.commit()
-        db.refresh(note)
+    db.commit()
+    db.refresh(note)
 
     return note
 
